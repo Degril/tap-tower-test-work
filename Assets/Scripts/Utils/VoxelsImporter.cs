@@ -21,6 +21,9 @@ namespace Utils
 		}
 
 		[SerializeField]
+		private GameObject block = null;
+
+		[SerializeField]
 		private Texture2D slices = null;
 
 		[SerializeField]
@@ -80,6 +83,7 @@ namespace Utils
 				DestroyImmediate(child.gameObject);
 
 			Vector3Int from = Vector3Int.zero;
+			int createdObjectNumber = 0;
 			for (from.y = 0; from.y < size.y; ++from.y)
 				for (from.x = 0; from.x < size.x; ++from.x)
 					for (from.z = 0; from.z < size.z; ++from.z)
@@ -114,11 +118,16 @@ namespace Utils
 								for (mid.z = from.z; mid.z <= to.z; ++mid.z)
 									visited[mid.x, mid.y, mid.z] = true;
 
-						Debug.Log($"from {from} to {to} element {fromElement.name} color {fromColor}");
-						// TODO: place a block at found placement
-						Debug.LogError("Block placement is not implemented");
-					}
+						var createdObject = Instantiate(block, from , Quaternion.identity, place);
+						createdObject.name = $"object {++createdObjectNumber}";
+						createdObject.transform.localScale = to - from + Vector3.one;
 
+						var renderer = createdObject.GetComponent<Renderer>();
+						var mpBlock = new MaterialPropertyBlock();
+						mpBlock.SetColor("_Color", fromColor);
+						renderer.SetPropertyBlock(mpBlock);
+					}
+			
 			EditorUtility.SetDirty(place);
 		}
 
