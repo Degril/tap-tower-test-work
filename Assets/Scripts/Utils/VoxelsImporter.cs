@@ -33,6 +33,8 @@ namespace Utils
 		[SerializeField]
 		private Element[] elements = System.Array.Empty<Element>();
 
+		private Dictionary<Color, Material> materialsBuffer = new Dictionary<Color, Material>();
+
 		private void OnValidate()
 		{
 			if (slices)
@@ -123,9 +125,16 @@ namespace Utils
 						createdObject.transform.localScale = to - from + Vector3.one;
 
 						var renderer = createdObject.GetComponent<Renderer>();
-						var mpBlock = new MaterialPropertyBlock();
-						mpBlock.SetColor("_Color", fromColor);
-						renderer.SetPropertyBlock(mpBlock);
+						if (materialsBuffer.TryGetValue(fromColor, out var material))
+                        {
+							renderer.sharedMaterial = material;
+                        }
+                        else
+                        {
+							var tempMaterial = new Material(renderer.sharedMaterial);
+							tempMaterial.color = fromColor;
+							renderer.sharedMaterial = tempMaterial;
+						}
 					}
 			
 			EditorUtility.SetDirty(place);
